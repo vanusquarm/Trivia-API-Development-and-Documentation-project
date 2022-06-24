@@ -105,6 +105,72 @@ def create_app(test_config=None):
         finally:
             db.session.close()
 
- 
+    """
+    @TODO:
+    Create an endpoint to POST a new question,
+    which will require the question and answer text,
+    category, and difficulty score.
+
+    TEST: When you submit a question on the "Add" tab,
+    the form will clear and the question will appear at the end of the last page
+    of the questions list in the "List" tab.
+    """
+
+    """
+    @TODO:
+    Create a POST endpoint to get questions based on a search term.
+    It should return any questions for whom the search term
+    is a substring of the question.
+
+    TEST: Search by any phrase. The questions list will update to include
+    only question that include that string within their question.
+    Try using the word "title" to start.
+    """
+
+    @app.route('/questions', methods=['POST'])
+    def create_question():
+        body = request.get_json()
+        page_index = request.args.get('page', 1, type=int)
+
+        new_question = body.get('question', '')
+        new_answer = body.get('answer', '')
+        new_category = body.get('category', 1)
+        new_difficulty = body.get('difficulty', 1)
+        search_term = body.get('searchTerm', None)
+
+        if (new_question == '' or new_answer == '') and search_term is None:
+            abort(422)
+
+        try:
+            if search_term:
+                questions_selection = Question.query.order_by(Question.id).filter(Question.question.ilike("%{}%".format(search_term))).paginate(page_index,QUESTIONS_PER_PAGE).items
+
+                return jsonify({
+                    'success': True,
+                    'questions': [question.format() for question in questions_selection],
+                    'total_questions': len(questions_selection)
+                })
+            else:
+                question = Question(question=new_question, answer=new_answer, category=new_category, difficulty=new_difficulty)
+                question.insert()
+
+                page_index = request.args.get('page', 1, type=int)
+                questions_selection = Question.query.order_by(Question.id).paginate(page_index, QUESTIONS_PER_PAGE).items
+
+
+                return jsonify({
+                    'success': True,
+                    'created': question.id,
+                    'questions': [question.format() for question in questions_selection],
+                    'total_questions': len(questions_selection)
+                }), 201
+        except:
+            db.session.rollback()
+            abort(422)
+        finally:
+            db.session.close()
+
+
+
     return app
 
