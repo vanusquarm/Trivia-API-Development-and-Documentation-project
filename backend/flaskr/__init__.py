@@ -82,11 +82,8 @@ def create_app(test_config=None):
     def delete_question(question_id):
         try:
             question = Question.query.filter(Question.id == question_id).one_or_none()
-
-            if question is None:
-                abort(404)
-
             question.delete()
+            
             page_index = request.args.get('page', 1, type=int)
             questions_selection = Question.query.order_by(Question.id).paginate(page_index, QUESTIONS_PER_PAGE).items
 
