@@ -67,17 +67,18 @@ One note before you delve into your tasks: for each endpoint, you are expected t
 8. Create a `POST` endpoint to get questions to play the quiz. This endpoint should take a category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions.
 9. Create error handlers for all expected errors including 400, 404, 422, and 500.
 
-## Documenting your Endpoints
+## Endpoints Documentation
 
-You will need to provide detailed documentation of your API endpoints including the URL, request parameters, and the response body. Use the example below as a reference.
+Documentation of available API endpoints including the URL, request parameters, and the response body
 
-### Documentation Example
+<!-- ### Documentation Example -->
 
-`GET '/api/v1.0/categories'`
+### `GET '/categories'`
 
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
 - Returns: An object with a single key, `categories`, that contains an object of `id: category_string` key: value pairs.
+- Sample: `curl http://localhost:3000/categories`
 
 ```json
 {
@@ -87,6 +88,209 @@ You will need to provide detailed documentation of your API endpoints including 
   "4": "History",
   "5": "Entertainment",
   "6": "Sports"
+}
+```
+
+### `GET '/questions'`
+
+- Fetches a dictionary of questions.
+- Request Arguments: `page` (optional and defaults to 1)
+- Returns:
+  - `success`: True or False.
+  - `questions`: List of questions where each question is a key/value pairs object containing `id`, `question`, `category` and `diffficulty` with a max length of 10.
+  - `total_questions`: the total number of quesitons in the database.
+  - `current_category`: string.
+  - `categories`: dictionary of the available categories.
+- Sample: `curl http://localhost:3000/questions?page=1`
+
+```json
+{
+  "categories": {
+    "1": "Science",
+    "2": "Art",
+    "3": "Geography",
+    "4": "History",
+    "5": "Entertainment",
+    "6": "Sports"
+  },
+  "current_category": "Science",
+  "questions": [
+    {
+      "answer": "Apollo 13",
+      "category": 5,
+      "difficulty": 4,
+      "id": 2,
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    },
+    {
+      "answer": "Tom Cruise",
+      "category": 5,
+      "difficulty": 4,
+      "id": 4,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    },
+    {...}
+  ],
+  "success": true,
+  "total_questions": 18
+}
+```
+
+### `DELETE '/questions/<int:question_id>'`
+
+- Removes a particular question from the database.
+- Request Arguments: `question_id` (required)
+- Returns:
+  - `success`: True or False.
+  - `questions`: List of questions where each question is a key/value pairs object containing `id`, `question`, `category` and `diffficulty` with a paginated max length of 10.
+  - `total_questions`: the total number of quesitons in the database.
+  - `deleted`: question_id.
+- Sample: `curl -X DELETE http://localhost:3000/questions/2`
+
+```json
+{
+  "deleted": 2,
+  "questions": [
+    {
+      "answer": "Apollo 13",
+      "category": 5,
+      "difficulty": 4,
+      "id": 2,
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    },
+    {
+      "answer": "Tom Cruise",
+      "category": 5,
+      "difficulty": 4,
+      "id": 4,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    },
+    {...}
+  ],
+  "success": true,
+  "total_questions": 17
+}
+```
+
+### `POST '/questions'`
+
+- Creates a question in the database and also handles the search feature.
+- Request body:
+
+  - `question`: String (required).
+  - `answer`: String (required)
+  - `difficulty`: Number (optional defaults to 1).
+  - `category`: Number (optional defaults to 1 - `Science`).
+  - `searchTerm`: String - if included it will not create a question but rather return search results
+
+- Returns:
+  - `success`: True or False.
+  - `questions`: List of questions where each question is a key/value pairs object containing `id`, `question`, `category` and `diffficulty` with a paginated max length of 10.
+  - `total_questions`: the total number of quesitons in the database.
+  - `created`: id.
+- Sample: `curl -X POST http://localhost:3000/questions -H "Content-Type: application/json" -d '{"question": "When did Nigeria gain her independence", "answer": "1960"}'`
+
+```json
+{
+  "created": 21,
+  "questions": [
+    {
+      "answer": "Apollo 13",
+      "category": 5,
+      "difficulty": 4,
+      "id": 2,
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    },
+    {
+      "answer": "Tom Cruise",
+      "category": 5,
+      "difficulty": 4,
+      "id": 4,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    },
+    {...}
+  ],
+  "success": true,
+  "total_questions": 17
+}
+```
+
+### `GET '/categories/<int:category_id>/questions'`
+
+- Fetches a dictionary of questions in a particular category.
+- Request Arguments: `page` (optional and defaults to 1)
+- Returns:
+  - `success`: True or False.
+  - `questions`: List of questions where each question is a key/value pairs object containing `id`, `question`, `category` and `diffficulty` with a max length of 10.
+  - `total_questions`: the total number of quesitons in the database.
+  - `current_category`: string.
+  - `categories`: dictionary of the available categories.
+- Sample: `curl http://localhost:3000/categories/1/questions`
+
+```json
+{
+  "current_category": "Science",
+  "questions": [
+    {
+      "answer": "Apollo 13",
+      "category": 5,
+      "difficulty": 4,
+      "id": 2,
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    },
+    {
+      "answer": "Tom Cruise",
+      "category": 5,
+      "difficulty": 4,
+      "id": 4,
+      "question": "What actor did author Anne Rice first denounce, then praise in the role of her beloved Lestat?"
+    },
+    {...}
+  ],
+  "success": true,
+  "total_questions": 18
+}
+```
+
+### `POST '/quizzes'`
+
+- Fetches a random question from the database.
+- Request body: `quiz_category` (optional - if not provided returns a questions from any category)
+- Returns:
+  - `success`: True or False.
+  - `question`: A random question.
+  - `previous_questions`: An arrray of IDs of previous questions.
+- Sample: `curl http://localhost:3000/categories/1/questions`
+
+```json
+{
+  "previous_questions": [1, 4, 11],
+  "question": {
+    "answer": "Apollo 13",
+    "category": 5,
+    "difficulty": 4,
+    "id": 2,
+    "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+  },
+  "success": true
+}
+```
+
+## Errors handling:
+
+The API typical will throw three major error status code `404 - Not found`, `422 - Unprocessable` or `400 - Bad request`. The will return the following key/value pairs JSON content:
+
+- `success`: False.
+- `error`: error code number.
+- `message`: error message string giving a brief description of the kind of error.
+
+Sample:
+
+```JSON
+{
+    "success": false,
+    "error": 404,
+    "message": "Resource Not Found"
 }
 ```
 
