@@ -276,24 +276,6 @@ Documentation of available API endpoints including the URL, request parameters, 
 }
 ```
 
-## Errors handling:
-
-The API typical will throw three major error status codes `404 - Not found`, `422 - Unprocessable` or `400 - Bad request`. The will return the following key/value pairs JSON content:
-
-- `success`: False.
-- `error`: error code number.
-- `message`: error message string giving a brief description of the kind of error.
-
-Sample:
-
-```JSON
-{
-    "success": false,
-    "error": 404,
-    "message": "Resource Not Found"
-}
-```
-
 ## Testing
 
 Write at least one test for the success and at least one error behavior of each endpoint using the unittest library.
